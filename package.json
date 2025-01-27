@@ -10,7 +10,7 @@
   "author": "lars",
   "license": "ISC",
   "dependencies": {
-    "@supabase/ssr": "^0.0.10",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.38.4",
     "body-parser": "^1.20.2",
     "dotenv": "^16.3.1",
