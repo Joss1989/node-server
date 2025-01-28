@@ -10,26 +10,74 @@ const router = express.Router();
 
 router.use(express.json());
 
-router.get("/test", (request, response) => {
-  response.send("Hello, World root!");
+router.get("/test", (req, res) => {
+  res.send("Hello, World root!");
 });
 
 // router.get("/data", (request, response) => {
 //   response.send("Hello, World data!");
 // });
 
-// router.get("/getOne", (request, response) => {
-//   response.send("Hello, Get One!");
-// });
-
-router.get("/getAlldata", async (request, response) => {
+router.get("/getByQuery", async (req, res) => {
   try {
-    const cards = await Data.find();
-    response.json(cards);
+    const { param } = req.query
+    const data = await Data.find({
+      $or: [
+        { name: { $regex: new RegExp(param, "i") }}, 
+        { text: { $regex: new RegExp(param, "i") }},
+        { "information.strength": { $eq: param }},
+        { "information.lives": { $eq: param }}
+      ]
+    })    
+    res.json(data)
   } catch (error) {
-    response.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
+  }
+})
+
+router.get("/getName", async (req, res) => {
+  const data = await Data.find({"name":"poul"})
+  res.json(data)
+});
+
+router.get("/getOne/:id", async (req, res) => {
+  try {
+    const data = await Data.findById(req.params.id)
+      res.json(data)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
   }
 });
+
+router.get("/getAlldata", async (req, res) => {
+  try {
+    const cards = await Data.find();
+    res.json(cards);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.post("/postsingle", async (req, res) => {
+
+  try {
+    const cardItem = {
+      name: "Potati",
+      img: "potati",
+      information: { strength: 10, lives: 1 },
+      text: "potati without"
+    }
+    const documentId = "6798cc8698729e7e4616f3e2" // document ID
+    const updatedDocument = await Data.findByIdAndUpdate(
+      documentId,
+      { $push: { content: cardItem } },
+      { new: true }
+    )
+      res.status(200).json(updatedDocument)
+  } catch (error) {
+      res.status(400).json({ message: error.message })
+  }
+})
 
 router.post("/post", async (req, res) => {
 
