@@ -21,14 +21,12 @@ router.get("/test", (req, res) => {
 router.get("/getByQuery", async (req, res) => {
   try {
     const { param } = req.query
-    const data = await Data.find({
-      $or: [
-        { name: { $regex: new RegExp(param, "i") }}, 
-        { text: { $regex: new RegExp(param, "i") }},
-        { "information.strength": { $eq: param }},
-        { "information.lives": { $eq: param }}
-      ]
-    })    
+    const data = await Data.find({  
+      $or: [ 
+        { name: { $regex: new RegExp(param, 'i') } },         
+        { text: { $regex: new RegExp(param, 'i') } }
+
+      ]})    
     res.json(data)
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -58,26 +56,26 @@ router.get("/getAlldata", async (req, res) => {
   }
 });
 
-router.post("/postsingle", async (req, res) => {
+// router.post("/postsingle", async (req, res) => {
 
-  try {
-    const cardItem = {
-      name: "Potati",
-      img: "potati",
-      information: { strength: 10, lives: 1 },
-      text: "potati without"
-    }
-    const documentId = "6798cc8698729e7e4616f3e2" // document ID
-    const updatedDocument = await Data.findByIdAndUpdate(
-      documentId,
-      { $push: { content: cardItem } },
-      { new: true }
-    )
-      res.status(200).json(updatedDocument)
-  } catch (error) {
-      res.status(400).json({ message: error.message })
-  }
-})
+//   try {
+//     const cardItem = {
+//       name: "Potati",
+//       img: "potati",
+//       information: { strength: 10, lives: 1 },
+//       text: "potati without"
+//     }
+//     const documentId = "6798cc8698729e7e4616f3e2" // document ID
+//     const updatedDocument = await Data.findByIdAndUpdate(
+//       documentId,
+//       { $push: { content: cardItem } },
+//       { new: true }
+//     )
+//       res.status(200).json(updatedDocument)
+//   } catch (error) {
+//       res.status(400).json({ message: error.message })
+//   }
+// })
 
 router.post("/post", async (req, res) => {
 
@@ -100,5 +98,30 @@ router.post("/post", async (req, res) => {
     res.status(400).json({ message: error.message })
   }
 });
+
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const id = req.params.id
+    const data = await Data.findByIdAndDelete(id)
+    res.send(`Document with ${ data?.name } er blevet slettet`)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+});
+
+router.put("/update/:id", async (req, res) => {
+  try {
+    const id = req.params.id
+    const updateData = req.body
+    const options = { new: true }
+
+    const result = await Data.findByIdAndUpdate(
+      id, updateData, options
+    )
+    res.send(result)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
 
 export default router;
